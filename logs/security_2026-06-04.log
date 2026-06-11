@@ -1,0 +1,2 @@
+[2026-06-04 11:10:48] [WARNING] [POST] Type: CSRF_FAILED | User: Anonymous | IP: ::1 | Description: CSRF token mismatch on login
+[2026-06-04 11:11:08] [INFO] [POST] Type: LOGIN_SUCCESS | User: 3 | IP: ::1 | Description: User ilhamzp logged in
