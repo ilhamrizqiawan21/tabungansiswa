@@ -1,96 +1,86 @@
-# Tabungan Siswa
+# 📊 Tabungan Siswa (Student Savings Management System)
 
-## Description / Deskripsi
+Sistem Manajemen Tabungan Siswa adalah aplikasi berbasis web yang dirancang untuk membantu sekolah dalam mengelola data tabungan siswa secara efisien, transparan, dan aman.
 
-**English:**
-Tabungan Siswa is a student savings management application designed to help students manage their savings and financial goals. This application provides an easy-to-use interface for tracking savings, monitoring transactions, and achieving financial objectives in a school environment.
+## 🚀 Fitur Utama
 
-**Indonesia:**
-Tabungan Siswa adalah aplikasi manajemen tabungan siswa yang dirancang untuk membantu siswa mengelola tabungan dan tujuan keuangan mereka. Aplikasi ini menyediakan antarmuka yang mudah digunakan untuk melacak tabungan, memantau transaksi, dan mencapai tujuan keuangan di lingkungan sekolah.
+### 1. 👥 Manajemen Data
+*   **Data Siswa**: Pengelolaan lengkap (CRUD) informasi siswa.
+*   **Data Kelas**: Pengelolaan kelas yang terintegrasi dengan Tahun Pelajaran.
+*   **Multi Tahun Pelajaran**: Mendukung isolasi data per tahun akademik (Ganjil/Genap) dengan status tahun aktif.
 
----
+### 2. 💰 Transaksi Tabungan
+*   **Setoran & Penarikan**: Pencatatan mutasi saldo siswa secara real-time.
+*   **Approval Workflow**: Sistem persetujuan untuk transaksi besar atau khusus (Pending → Approved/Rejected).
+*   **Riwayat Saldo**: Pelacakan saldo otomatis setiap transaksi.
 
-## Installation / Instalasi
+### 3. 🛡️ Keamanan & Audit (Enterprise Ready)
+*   **Password Hashing**: Menggunakan algoritma **Argon2id** (standard industri terbaru).
+*   **Audit Log**: Mencatat setiap perubahan data (Siapa, Kapan, Apa, Nilai Lama & Baru).
+*   **CSRF Protection**: Melindungi form dari serangan Cross-Site Request Forgery.
+*   **Rate Limiting**: Pencegahan Brute Force pada sistem login.
+*   **Secure Session**: Manajemen session dengan timeout otomatis.
 
-### Requirements / Persyaratan:
-- Web Browser (Chrome, Firefox, Safari, Edge / Browser apa pun yang modern)
-- Internet connection (Koneksi internet)
-- Text editor atau IDE untuk development
+### 4. 📈 Laporan & Analitik
+*   **Dashboard Analytics**: Visualisasi tren transaksi dan distribusi saldo menggunakan Chart.js.
+*   **Cetak Buku Tabungan**: Format cetak profesional untuk buku tabungan siswa.
+*   **Export Excel**: Export laporan transaksi menggunakan PHPSpreadsheet.
+*   **Laporan Bulanan**: Rekapitulasi transaksi per periode tertentu.
 
-### Steps / Langkah-langkah:
+## 🛠️ Tech Stack
 
-**English:**
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/ilhamrizqiawan21/tabungansiswa.git
-   cd tabungansiswa
-   ```
+*   **Core**: PHP (Vanilla)
+*   **Database**: MySQL / MariaDB
+*   **UI/UX**: Bootstrap, FontAwesome, Chart.js
+*   **Dependencies**: Composer, PHPSpreadsheet
+*   **Security**: Argon2id, CSRF Token, Rate Limiter
 
-2. If using a local server setup (optional / jika menggunakan setup server lokal):
-   ```bash
-   # Using PHP built-in server
-   php -S localhost:8000
-   
-   # Or using Node.js HTTP server
-   npx http-server
-   ```
+## 📁 Struktur Proyek
 
-3. Open your browser and navigate to:
-   ```
-   http://localhost:8000
-   ```
+```text
+├── auth/           # Login & Logout logic
+├── config/         # Database & Auth configuration
+├── includes/       # Core modules (Security, Audit, Analytics, Functions)
+├── siswa/          # Modul CRUD Siswa
+├── kelas/          # Modul CRUD Kelas
+├── transaksi/      # Modul Transaksi Setoran & Penarikan
+├── laporan/        # Modul Export, Analytics, & Print
+├── pengaturan/     # Audit Log & Tahun Pelajaran settings
+├── scripts/        # Migration & Utility scripts
+├── assets/         # Images & Static files
+└── vendor/         # Composer dependencies
+```
 
-4. Start using the application
+## ⚙️ Instalasi
 
-**Indonesia:**
-1. Clone repository:
-   ```bash
-   git clone https://github.com/ilhamrizqiawan21/tabungansiswa.git
-   cd tabungansiswa
-   ```
+1.  **Clone Repository**
+    ```bash
+    git clone https://github.com/username/tabungansiswa.git
+    ```
 
-2. Jika menggunakan setup server lokal (opsional):
-   ```bash
-   # Menggunakan PHP built-in server
-   php -S localhost:8000
-   
-   # Atau menggunakan Node.js HTTP server
-   npx http-server
-   ```
+2.  **Install Dependencies**
+    ```bash
+    composer install
+    ```
 
-3. Buka browser Anda dan navigasi ke:
-   ```
-   http://localhost:8000
-   ```
+3.  **Konfigurasi Database**
+    *   Buat database baru di MySQL.
+    *   Import file `tabungan_siswa (5).sql`.
+    *   Sesuaikan konfigurasi di `config/database.php`.
 
-4. Mulai gunakan aplikasi
+4.  **Jalankan Migrasi Keamanan**
+    *   Akses `scripts/hash_admin_passwords.php` melalui browser untuk mengamankan password admin lama.
+    *   Ikuti instruksi di `IMPLEMENTATION_GUIDE.md` untuk aktivasi fitur tambahan.
 
----
+5.  **Akses Aplikasi**
+    *   Buka `http://localhost/tabungansiswa` di browser Anda.
 
-## Usage / Penggunaan
+## 📝 Panduan Tambahan
 
-### English:
-1. Access the application through your web browser
-2. Create a new savings account or login to existing account
-3. Set your savings goals and target amounts
-4. Record savings deposits and withdrawals
-5. Monitor your savings progress
-6. View transaction history
-7. Track your financial goals achievement
-
-### Indonesia:
-1. Akses aplikasi melalui browser web Anda
-2. Buat akun tabungan baru atau login ke akun yang ada
-3. Tetapkan tujuan tabungan dan jumlah target Anda
-4. Catat setoran dan penarikan tabungan
-5. Pantau progres tabungan Anda
-6. Lihat riwayat transaksi
-7. Lacak pencapaian tujuan keuangan Anda
+*   **[FEATURES_GUIDE.md](FEATURES_GUIDE.md)**: Detail teknis implementasi fitur Audit Log, Multi-Tahun, dll.
+*   **[IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)**: Langkah-langkah setup awal keamanan.
+*   **[SECURITY.md](SECURITY.md)**: Dokumentasi standar keamanan yang diterapkan.
 
 ---
 
-## Author / Penulis
-Ilham Rizqiawan
-
-## License / Lisensi
-This project is licensed under the MIT License - see the LICENSE file for details.
+**Developed with ❤️ for Better Education Management**
