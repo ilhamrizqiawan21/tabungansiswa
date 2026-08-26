@@ -1,4 +1,0 @@
-[2026-06-03 21:06:52] [WARNING] [POST] Type: LOGIN_FAILED | User: Anonymous | IP: ::1 | Description: Failed login attempt for username: admin
-[2026-06-03 21:11:52] [WARNING] [POST] Type: LOGIN_FAILED | User: Anonymous | IP: ::1 | Description: Failed login attempt for username: ilhamzp
-[2026-06-03 21:12:09] [WARNING] [POST] Type: LOGIN_FAILED | User: Anonymous | IP: ::1 | Description: Failed login attempt for username: ilhamzp
-[2026-06-03 21:21:44] [INFO] [POST] Type: LOGIN_SUCCESS | User: 3 | IP: ::1 | Description: User ilhamzp logged in
