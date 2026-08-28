@@ -55,7 +55,8 @@ Sistem Manajemen Tabungan Siswa adalah aplikasi berbasis web yang dirancang untu
 
 1.  **Clone Repository**
     ```bash
-    git clone https://github.com/username/tabungansiswa.git
+    git clone https://github.com/ilhamrizqiawan21/tabungansiswa.git
+    cd tabungansiswa
     ```
 
 2.  **Install Dependencies**
@@ -65,7 +66,7 @@ Sistem Manajemen Tabungan Siswa adalah aplikasi berbasis web yang dirancang untu
 
 3.  **Konfigurasi Database**
     *   Buat database baru di MySQL.
-    *   Import file `tabungan_siswa (5).sql`.
+    *   Import schema database yang tersedia di repository. Periksa dan sanitasi data sebelum digunakan.
     *   Sesuaikan konfigurasi di `config/database.php`.
 
 4.  **Jalankan Migrasi Keamanan**
