@@ -1,0 +1,23 @@
+<?php
+namespace App\Http\Controllers;
+use App\Models\Siswa;
+use App\Models\Transaksi;
+use App\Services\TransactionService;
+use App\Models\Setting;
+use App\Models\Kelas;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+class TransactionController extends Controller
+{
+    public function index(): Response { $classId=Setting::get('active_class_id'); return Inertia::render('Transactions/Index', ['students'=>Siswa::where('kelas_id',$classId)->orderBy('nama')->get(['id','nis','nama']),'items' => Transaksi::with('siswa')->whereHas('siswa',fn($q)=>$q->where('kelas_id',$classId))->latest('id')->paginate(15)->through(fn ($t) => ['id'=>$t->id,'tanggal'=>$t->tanggal->format('d M Y'),'siswa'=>$t->siswa?->nama ?? '-','jenis'=>$t->jenis,'jumlah'=>(float)$t->jumlah,'saldo'=>(float)$t->saldo,'keterangan'=>$t->keterangan])]); }
+    public function create(): Response { $classId=Setting::get('active_class_id'); return Inertia::render('Transactions/Create', ['students' => Siswa::where('kelas_id',$classId)->withSum(['transaksi as saldo'=>function($q){$q->selectRaw("SUM(CASE WHEN jenis = 'masuk' THEN jumlah ELSE -jumlah END)");}], 'jumlah')->orderBy('nama')->get(['id','nis','nama']),'activeClass'=>Kelas::with('tahunPelajaran')->find($classId)]); }
+    public function store(Request $request, TransactionService $service): RedirectResponse
+    {
+        $data = $request->validate(['siswa_id'=>['required','exists:siswa,id'],'tanggal'=>['required','date'],'jenis'=>['required','in:masuk,keluar'],'jumlah'=>['required','numeric','min:1'],'keterangan'=>['nullable','string','max:255']]);
+        abort_unless(Siswa::whereKey($data['siswa_id'])->where('kelas_id', Setting::get('active_class_id'))->exists(), 422, 'Siswa bukan bagian dari kelas aktif.');
+        $data['requested_by'] = $request->user('admin')->id;
+        $service->create($data); return to_route('transactions.index')->with('success', 'Transaksi berhasil dicatat.');
+    }
+}

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use App\Models\Setting;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -37,7 +38,8 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            'auth' => ['admin' => fn () => $request->user('admin') ? ['id' => $request->user('admin')->id, 'nama' => $request->user('admin')->nama, 'username' => $request->user('admin')->username, 'role' => $request->user('admin')->role] : null],
+            'appSettings' => ['teacherName' => fn () => Setting::get('teacher_name', 'Administrator'), 'schoolName' => fn () => Setting::get('school_name', 'Sekolah Anda'), 'teacherPhone' => fn () => Setting::get('teacher_phone', '')],
         ];
     }
 }
