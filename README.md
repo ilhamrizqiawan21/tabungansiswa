@@ -1,87 +1,58 @@
-# 📊 Tabungan Siswa (Student Savings Management System)
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-Sistem Manajemen Tabungan Siswa adalah aplikasi berbasis web yang dirancang untuk membantu sekolah dalam mengelola data tabungan siswa secara efisien, transparan, dan aman.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-## 🚀 Fitur Utama
+## About Laravel
 
-### 1. 👥 Manajemen Data
-*   **Data Siswa**: Pengelolaan lengkap (CRUD) informasi siswa.
-*   **Data Kelas**: Pengelolaan kelas yang terintegrasi dengan Tahun Pelajaran.
-*   **Multi Tahun Pelajaran**: Mendukung isolasi data per tahun akademik (Ganjil/Genap) dengan status tahun aktif.
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-### 2. 💰 Transaksi Tabungan
-*   **Setoran & Penarikan**: Pencatatan mutasi saldo siswa secara real-time.
-*   **Approval Workflow**: Sistem persetujuan untuk transaksi besar atau khusus (Pending → Approved/Rejected).
-*   **Riwayat Saldo**: Pelacakan saldo otomatis setiap transaksi.
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-### 3. 🛡️ Keamanan & Audit (Enterprise Ready)
-*   **Password Hashing**: Menggunakan algoritma **Argon2id** (standard industri terbaru).
-*   **Audit Log**: Mencatat setiap perubahan data (Siapa, Kapan, Apa, Nilai Lama & Baru).
-*   **CSRF Protection**: Melindungi form dari serangan Cross-Site Request Forgery.
-*   **Rate Limiting**: Pencegahan Brute Force pada sistem login.
-*   **Secure Session**: Manajemen session dengan timeout otomatis.
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-### 4. 📈 Laporan & Analitik
-*   **Dashboard Analytics**: Visualisasi tren transaksi dan distribusi saldo menggunakan Chart.js.
-*   **Cetak Buku Tabungan**: Format cetak profesional untuk buku tabungan siswa.
-*   **Export Excel**: Export laporan transaksi menggunakan PHPSpreadsheet.
-*   **Laporan Bulanan**: Rekapitulasi transaksi per periode tertentu.
+## Learning Laravel
 
-## 🛠️ Tech Stack
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-*   **Core**: PHP (Vanilla)
-*   **Database**: MySQL / MariaDB
-*   **UI/UX**: Bootstrap, FontAwesome, Chart.js
-*   **Dependencies**: Composer, PHPSpreadsheet
-*   **Security**: Argon2id, CSRF Token, Rate Limiter
+In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## 📁 Struktur Proyek
+You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
-```text
-├── auth/           # Login & Logout logic
-├── config/         # Database & Auth configuration
-├── includes/       # Core modules (Security, Audit, Analytics, Functions)
-├── siswa/          # Modul CRUD Siswa
-├── kelas/          # Modul CRUD Kelas
-├── transaksi/      # Modul Transaksi Setoran & Penarikan
-├── laporan/        # Modul Export, Analytics, & Print
-├── pengaturan/     # Audit Log & Tahun Pelajaran settings
-├── scripts/        # Migration & Utility scripts
-├── assets/         # Images & Static files
-└── vendor/         # Composer dependencies
+## Agentic Development
+
+Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+
+```bash
+composer require laravel/boost --dev
+
+php artisan boost:install
 ```
 
-## ⚙️ Instalasi
+Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
-1.  **Clone Repository**
-    ```bash
-    git clone https://github.com/ilhamrizqiawan21/tabungansiswa.git
-    cd tabungansiswa
-    ```
+## Contributing
 
-2.  **Install Dependencies**
-    ```bash
-    composer install
-    ```
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-3.  **Konfigurasi Database**
-    *   Buat database baru di MySQL.
-    *   Import schema database yang tersedia di repository. Periksa dan sanitasi data sebelum digunakan.
-    *   Sesuaikan konfigurasi di `config/database.php`.
+## Code of Conduct
 
-4.  **Jalankan Migrasi Keamanan**
-    *   Akses `scripts/hash_admin_passwords.php` melalui browser untuk mengamankan password admin lama.
-    *   Ikuti instruksi di `IMPLEMENTATION_GUIDE.md` untuk aktivasi fitur tambahan.
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-5.  **Akses Aplikasi**
-    *   Buka `http://localhost/tabungansiswa` di browser Anda.
+## Security Vulnerabilities
 
-## 📝 Panduan Tambahan
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-*   **[FEATURES_GUIDE.md](FEATURES_GUIDE.md)**: Detail teknis implementasi fitur Audit Log, Multi-Tahun, dll.
-*   **[IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)**: Langkah-langkah setup awal keamanan.
-*   **[SECURITY.md](SECURITY.md)**: Dokumentasi standar keamanan yang diterapkan.
+## License
 
----
-
-**Developed with ❤️ for Better Education Management**
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
