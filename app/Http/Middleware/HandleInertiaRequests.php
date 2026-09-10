@@ -2,8 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Http\Request;
 use App\Models\Setting;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -39,7 +40,16 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => ['admin' => fn () => $request->user('admin') ? ['id' => $request->user('admin')->id, 'nama' => $request->user('admin')->nama, 'username' => $request->user('admin')->username, 'role' => $request->user('admin')->role] : null],
-            'appSettings' => ['teacherName' => fn () => Setting::get('teacher_name', 'Administrator'), 'schoolName' => fn () => Setting::get('school_name', 'Sekolah Anda'), 'teacherPhone' => fn () => Setting::get('teacher_phone', '')],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
+            'appSettings' => [
+                'teacherName' => fn () => Setting::get('teacher_name', 'Ilham Rizqiawan, S.Pd.'),
+                'schoolName' => fn () => Setting::get('school_name', 'MTs. Al-Ihsan Batujajar'),
+                'teacherPhone' => fn () => Setting::get('teacher_phone', ''),
+                'schoolLogo' => fn () => ($path = Setting::get('school_logo')) ? Storage::disk('public')->url($path) : null,
+            ],
         ];
     }
 }
