@@ -40,6 +40,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => ['admin' => fn () => $request->user('admin') ? ['id' => $request->user('admin')->id, 'nama' => $request->user('admin')->nama, 'username' => $request->user('admin')->username, 'role' => $request->user('admin')->role] : null],
+            'activeSession' => fn () => ['kelas' => Setting::get('active_class'), 'tahun' => Setting::get('active_year'), 'semester' => Setting::get('active_semester')],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

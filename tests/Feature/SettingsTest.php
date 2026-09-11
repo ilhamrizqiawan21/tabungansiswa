@@ -39,11 +39,12 @@ class SettingsTest extends TestCase
         ];
     }
 
-    public function test_guest_cannot_change_school_identity(): void
+    public function test_school_identity_can_be_changed_without_login(): void
     {
-        $this->post('/pengaturan', $this->settings())->assertRedirect('/login');
+        $this->from('/pengaturan')->post('/pengaturan', $this->settings())
+            ->assertRedirect('/pengaturan')->assertSessionHasNoErrors();
 
-        $this->assertDatabaseCount('settings', 0);
+        $this->assertDatabaseHas('settings', ['key' => 'school_name', 'value' => 'Sekolah Pelita']);
     }
 
     public function test_school_name_and_logo_are_saved_and_previous_logo_is_replaced(): void

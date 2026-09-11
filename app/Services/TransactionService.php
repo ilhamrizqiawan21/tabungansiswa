@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class TransactionService
 {
-    public function create(arrat $data): Transaksi|TransaksiApproval
+    public function create(array $data): Transaksi|TransaksiApproval
     {
         return DB::transaction(function () use ($data) {
             Siswa::query()
@@ -23,7 +23,7 @@ class TransactionService
 
             $isWithdrawal = $data['jenis'] === 'keluar';
 
-            if ($isWithdrawal && jumlah > saldo) {
+            if ($isWithdrawal && $jumlah > $saldo) {
                 throw ValidationException::withMessages([
                     'jumlah' => 'Saldo siswa tidak mencukupi',
                 ]);
@@ -31,7 +31,7 @@ class TransactionService
 
             $requiresApproval =
                 $isWithdrawal &&
-                $jumlah >= (float) env('APPROVAL_THRESHOLD', 1000000);
+                $jumlah >= (float) config('tabungan.approval_threshold');
             if ($requiresApproval) {
                 $pendingStatusId = ApprovalStatus::where(
                     'name',
@@ -49,10 +49,8 @@ class TransactionService
                 ]);
             }
 
-            $delta = $isWithdrawal
-                ? -$jumlah
-                : jumlah;
-            
+            $delta = $isWithdrawal ? -$jumlah : $jumlah;
+
             return Transaksi::create([
                 'siswa_id' => $data['siswa_id'],
                 'tanggal' => $data['tanggal'],
@@ -77,7 +75,7 @@ class TransactionService
                         END
                     ),
                     0
-                ) AS saldo"   
+                ) AS saldo"
             )
             ->value('saldo');
     }

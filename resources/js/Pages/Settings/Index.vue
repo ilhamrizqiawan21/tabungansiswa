@@ -147,7 +147,7 @@ onBeforeUnmount(() => {
                         </section>
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <p class="text-xs text-slate-500">Perubahan diterapkan setelah disimpan.</p>
-                            <button class="sneat-primary px-5 py-3 text-sm font-semibold" :disabled="form.processing">
+                            <button class="sneat-primary px-5 py-3 text-sm font-semibold" :aria-busy="form.processing" :disabled="form.processing">
                                 {{ form.processing ? 'Menyimpan…' : 'Simpan pengaturan' }}
                             </button>
                         </div>

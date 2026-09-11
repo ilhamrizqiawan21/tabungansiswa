@@ -43,12 +43,12 @@ class TransaksiApproval extends Model
 
     public function status()
     {
-        return $this->belongsTo(ApprovalStatus::class,'transaksi_id');
+        return $this->belongsTo(ApprovalStatus::class, 'status_id');
     }
 
     public function requestedBy()
     {
-        return $this->belongsTo(Admin::class, 'requestedby');
+        return $this->belongsTo(Admin::class, 'requested_by');
     }
 
     public function approvedBy()

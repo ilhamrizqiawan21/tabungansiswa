@@ -1,22 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MasterDataController;
-use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\StudentSpreadsheetController;
+use App\Http\Controllers\StudentStatementController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Middleware\UsePersonalAdmin;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('dashboard'));
-Route::middleware('guest:admin')->group(function () {
-    Route::get('/login', [AdminAuthController::class, 'create'])->name('login');
-    Route::post('/login', [AdminAuthController::class, 'store'])->middleware('throttle:10,1')->name('login.store');
-});
-Route::middleware('auth:admin')->group(function () {
+Route::get('/login', fn () => to_route('dashboard'))->name('login');
+Route::middleware(UsePersonalAdmin::class)->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::prefix('master')->name('master.')->group(function () {
         Route::get('/tahun-pelajaran', [MasterDataController::class, 'tahun'])->name('tahun');
@@ -33,9 +32,16 @@ Route::middleware('auth:admin')->group(function () {
         Route::post('/siswa', [MasterDataController::class, 'siswaStore'])->name('siswa.store');
         Route::patch('/siswa/{siswa}', [MasterDataController::class, 'siswaUpdate'])->name('siswa.update');
         Route::delete('/siswa/{siswa}', [MasterDataController::class, 'siswaDestroy'])->name('siswa.destroy');
-        Route::post('/siswa/import', [MasterDataController::class, 'siswaImport'])->name('siswa.import');
-        Route::get('/siswa/template', [MasterDataController::class, 'siswaTemplate'])->name('siswa.template');
+        Route::post('/siswa/import', [StudentSpreadsheetController::class, 'import'])->name('siswa.import');
+        Route::get('/siswa/export', [StudentSpreadsheetController::class, 'export'])->name('siswa.export');
+        Route::get('/siswa/template', [StudentSpreadsheetController::class, 'template'])->name('siswa.template');
     });
+    Route::get('/master/siswa/{siswa}/buku', [StudentStatementController::class, 'show'])->name('students.statement');
+    Route::get('/master/siswa/{siswa}/buku/cetak', [StudentStatementController::class, 'print'])->name('students.statement.print');
+    Route::get('/transaksi/{transaksi}/bukti', [TransactionController::class, 'receipt'])->name('transactions.receipt');
+    Route::get('/backup', [BackupController::class, 'index'])->name('backups.index');
+    Route::post('/backup', [BackupController::class, 'store'])->name('backups.store');
+    Route::get('/backup/{filename}', [BackupController::class, 'download'])->where('filename', 'tabungan-[A-Za-z0-9-]+\\.zip')->name('backups.download');
     Route::resource('transaksi', TransactionController::class)->only(['index', 'create', 'store'])->names('transactions');
     Route::get('/approval', [ApprovalController::class, 'index'])->middleware('admin.role')->name('approval.index');
     Route::patch('/approval/{approval}', [ApprovalController::class, 'update'])->middleware('admin.role')->name('approval.update');
@@ -47,5 +53,4 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/laporan/cetak', [ReportController::class, 'print'])->name('reports.print');
     Route::get('/pengaturan', [SettingsController::class, 'index'])->name('settings.index');
     Route::patch('/pengaturan', [SettingsController::class, 'update'])->name('settings.update');
-    Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('logout');
 });
