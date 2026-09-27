@@ -1,6 +1,201 @@
-<script setup lang="ts">import Pagination from "../../Components/Pagination.vue";import { ref } from 'vue'; import { useForm, usePage } from '@inertiajs/vue3'; import MainLayout from '../../Layouts/MainLayout.vue'; defineProps<{items:any}>(); const page=usePage(); const rupiah=(v:number)=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(v); const dialog=ref<HTMLDialogElement|null>(null);const selected=ref<any>(null);const form=useForm({status:'approved',reason:''});const decide=(item:any,status:string)=>{selected.value=item;form.reset();form.clearErrors();form.status=status;dialog.value?.showModal();};const submit=()=>{if(!form.processing)form.patch('/approval/'+selected.value.id,{preserveScroll:true,onSuccess:()=>dialog.value?.close()});};</script>
-<template><MainLayout><main class="p-6 sm:p-10"><div class="mx-auto max-w-7xl"><div v-if="page.props.flash?.success" class="mb-5 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{{ page.props.flash.success }}</div><div class="mb-8"><p class="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700">Kontrol</p><h1 class="mt-2 text-3xl font-bold text-slate-950">Persetujuan penarikan</h1><p class="mt-2 text-slate-500">Tinjau transaksi besar sebelum diproses sebagai transaksi final.</p></div><section class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200"><div class="border-b border-slate-100 px-6 py-5"><h2 class="font-bold">Menunggu persetujuan</h2><p class="mt-1 text-xs text-slate-500">{{ items.data.length }} transaksi pending di halaman ini</p></div><div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-slate-50 text-xs uppercase text-slate-500"><tr><th class="px-6 py-4">Tanggal</th><th class="px-6 py-4">Siswa</th><th class="px-6 py-4 text-right">Jumlah</th><th class="px-6 py-4">Peminta</th><th class="px-6 py-4 text-right">Aksi</th></tr></thead><tbody class="divide-y divide-slate-100"><tr v-for="item in items.data" :key="item.id"><td class="px-6 py-4 text-slate-500">{{ item.tanggal }}</td><td class="px-6 py-4 font-semibold">{{ item.siswa }}</td><td class="px-6 py-4 text-right whitespace-nowrap font-semibold text-rose-700">{{ rupiah(item.jumlah) }}</td><td class="px-6 py-4 text-slate-500">{{ item.requestedBy }}</td><td class="table-actions px-6 py-4 text-right"><button class="mr-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white" @click="decide(item,'approved')">Setujui</button><button class="rounded-lg bg-rose-600 px-3 py-2 text-xs font-semibold text-white" @click="decide(item,'rejected')">Tolak</button></td></tr><tr v-if="!items.data.length"><td colspan="5" class="px-6 py-12 text-center text-slate-400">Tidak ada approval pending.</td></tr></tbody></table></div><Pagination :data="items" /></section></div><dialog ref="dialog" aria-labelledby="decision-title" class="w-full max-w-lg rounded-xl p-6 backdrop:bg-slate-950/40" @cancel="form.processing && $event.preventDefault()">
-<form @submit.prevent="submit" class="space-y-4"><h2 id="decision-title" class="text-xl font-bold">{{form.status==='approved'?'Setujui':'Tolak'}} penarikan</h2><p>{{selected?.siswa}} · {{rupiah(selected?.jumlah??0)}}</p><p class="text-sm text-slate-500">Pengaju: {{selected?.requestedBy}}</p>
-<div v-if="Object.keys(form.errors).length" role="alert" class="text-sm text-rose-700"><p v-for="(error,key) in form.errors" :key="key">{{error}}</p></div>
-<div v-if="form.status==='rejected'"><label for="rejection-reason" class="block text-sm font-medium">Alasan penolakan (wajib)</label><textarea id="rejection-reason" v-model="form.reason" required maxlength="1000" class="mt-2 w-full" :disabled="form.processing"></textarea></div>
-<p v-else class="text-sm">Saldo akan diperiksa kembali sebelum penarikan dicatat.</p><div class="flex justify-end gap-3"><button type="button" class="rounded-lg border px-4 py-2" :aria-busy="form.processing" :disabled="form.processing" @click="dialog?.close()">Batal</button><button class="sneat-primary rounded-lg px-4 py-2 text-white" :aria-busy="form.processing" :disabled="form.processing">{{form.processing?'Memproses…':'Konfirmasi'}}</button></div></form></dialog></main></MainLayout></template>
+<script setup lang="ts">
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import EmptyState from '../../Components/EmptyState.vue';
+import FlashBanner from '../../Components/FlashBanner.vue';
+import FormField from '../../Components/FormField.vue';
+import PageHeader from '../../Components/PageHeader.vue';
+import Pagination from '../../Components/Pagination.vue';
+import TableCard from '../../Components/TableCard.vue';
+import { formatNumber, formatRupiah } from '../../format';
+import MainLayout from '../../Layouts/MainLayout.vue';
+import type { Paginated } from '../../types';
+
+type Status = 'pending' | 'approved' | 'rejected';
+interface ApprovalRow {
+    id: number;
+    tanggal: string | null;
+    siswa: string;
+    saldoSiswa: number | null;
+    jumlah: number;
+    keterangan: string | null;
+    requestedBy: string;
+    requestDate: string | null;
+    status: Status;
+    approvedBy: string | null;
+    approvalDate: string | null;
+    rejectionReason: string | null;
+}
+defineProps<{ items: Paginated<ApprovalRow>; status: Status }>();
+
+const tabs: Array<{ value: Status; label: string }> = [
+    { value: 'pending', label: 'Menunggu' },
+    { value: 'approved', label: 'Disetujui' },
+    { value: 'rejected', label: 'Ditolak' },
+];
+const dialog = ref<HTMLDialogElement | null>(null);
+const selected = ref<ApprovalRow | null>(null);
+const form = useForm({ status: 'approved' as 'approved' | 'rejected', reason: '' });
+/** Balance / incomplete-data errors are keyed outside the form fields. */
+const serverError = computed(() => {
+    const errors = form.errors as Record<string, string | undefined>;
+    return errors.jumlah ?? errors.approval ?? null;
+});
+function decide(item: ApprovalRow, decision: 'approved' | 'rejected') {
+    selected.value = item;
+    form.reset();
+    form.clearErrors();
+    form.status = decision;
+    dialog.value?.showModal();
+}
+function submit() {
+    if (!form.processing && selected.value) form.patch(`/approval/${selected.value.id}`, { preserveScroll: true, onSuccess: () => dialog.value?.close() });
+}
+</script>
+
+<template>
+    <MainLayout>
+        <Head title="Approval" />
+        <main class="p-4 sm:p-6 lg:p-8">
+            <div class="mx-auto max-w-7xl">
+                <FlashBanner />
+                <PageHeader
+                    eyebrow="Administrasi"
+                    title="Persetujuan penarikan"
+                    description="Tinjau penarikan besar sebelum diproses sebagai transaksi final."
+                />
+                <nav class="sneat-tabs mb-4" aria-label="Status pengajuan">
+                    <Link
+                        v-for="tab in tabs"
+                        :key="tab.value"
+                        :href="tab.value === 'pending' ? '/approval' : `/approval?status=${tab.value}`"
+                        class="sneat-tab"
+                        :class="{ 'is-active': status === tab.value }"
+                        :aria-current="status === tab.value ? 'page' : undefined"
+                        preserve-scroll
+                    >
+                        {{ tab.label }}
+                    </Link>
+                </nav>
+                <TableCard
+                    :title="tabs.find(tab => tab.value === status)?.label ?? ''"
+                    :description="
+                        status === 'pending' ? `${formatNumber(items.total)} pengajuan menunggu persetujuan` : `${formatNumber(items.total)} keputusan tercatat`
+                    "
+                >
+                    <thead>
+                        <tr>
+                            <th scope="col">Tanggal</th>
+                            <th scope="col">Siswa</th>
+                            <th scope="col" class="text-right">Jumlah</th>
+                            <th v-if="status === 'pending'" scope="col" class="text-right">Saldo siswa</th>
+                            <th scope="col">Peminta</th>
+                            <th v-if="status !== 'pending'" scope="col">Diputuskan</th>
+                            <th v-if="status === 'rejected'" scope="col">Alasan</th>
+                            <th v-if="status === 'pending'" scope="col" class="text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in items.data" :key="item.id">
+                            <td class="text-slate-500">{{ item.tanggal }}</td>
+                            <td class="font-semibold">
+                                {{ item.siswa }}
+                                <p v-if="item.keterangan" class="text-xs font-normal sneat-muted">{{ item.keterangan }}</p>
+                            </td>
+                            <td class="text-right font-semibold text-rose-700">{{ formatRupiah(item.jumlah) }}</td>
+                            <td
+                                v-if="status === 'pending'"
+                                class="text-right"
+                                :class="(item.saldoSiswa ?? 0) < item.jumlah ? 'text-rose-700 font-semibold' : ''"
+                            >
+                                {{ formatRupiah(item.saldoSiswa) }}
+                            </td>
+                            <td class="text-slate-500">
+                                {{ item.requestedBy }}
+                                <p class="text-xs sneat-muted">{{ item.requestDate }}</p>
+                            </td>
+                            <td v-if="status !== 'pending'" class="text-slate-500">
+                                {{ item.approvedBy ?? '—' }}
+                                <p class="text-xs sneat-muted">{{ item.approvalDate }}</p>
+                            </td>
+                            <td v-if="status === 'rejected'" class="text-slate-600">{{ item.rejectionReason || '—' }}</td>
+                            <td v-if="status === 'pending'" class="text-right">
+                                <div class="sneat-row-actions">
+                                    <button
+                                        type="button"
+                                        class="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white"
+                                        @click="decide(item, 'approved')"
+                                    >
+                                        Setujui
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-lg bg-rose-600 px-3 py-2 text-xs font-semibold text-white"
+                                        @click="decide(item, 'rejected')"
+                                    >
+                                        Tolak
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr v-if="!items.data.length">
+                            <td colspan="7">
+                                <EmptyState :title="status === 'pending' ? 'Tidak ada pengajuan yang menunggu.' : 'Belum ada riwayat keputusan.'" />
+                            </td>
+                        </tr>
+                    </tbody>
+                    <template #footer><Pagination :data="items" /></template>
+                </TableCard>
+            </div>
+            <dialog ref="dialog" aria-labelledby="decision-title" class="sneat-dialog" @cancel="form.processing && $event.preventDefault()">
+                <form class="space-y-4" @submit.prevent="submit">
+                    <h2 id="decision-title" class="text-lg font-bold">{{ form.status === 'approved' ? 'Setujui' : 'Tolak' }} penarikan</h2>
+                    <dl class="grid grid-cols-2 gap-3 rounded-lg bg-slate-50 p-4 text-sm">
+                        <div>
+                            <dt class="sneat-muted">Siswa</dt>
+                            <dd class="font-semibold">{{ selected?.siswa }}</dd>
+                        </div>
+                        <div>
+                            <dt class="sneat-muted">Pengaju</dt>
+                            <dd>{{ selected?.requestedBy }}</dd>
+                        </div>
+                        <div>
+                            <dt class="sneat-muted">Jumlah penarikan</dt>
+                            <dd class="font-semibold text-rose-700">{{ formatRupiah(selected?.jumlah) }}</dd>
+                        </div>
+                        <div>
+                            <dt class="sneat-muted">Saldo saat ini</dt>
+                            <dd class="font-semibold">{{ formatRupiah(selected?.saldoSiswa) }}</dd>
+                        </div>
+                        <div class="col-span-2">
+                            <dt class="sneat-muted">Saldo setelah disetujui</dt>
+                            <dd class="font-semibold" :class="(selected?.saldoSiswa ?? 0) - (selected?.jumlah ?? 0) < 0 ? 'text-rose-700' : 'text-indigo-700'">
+                                {{ formatRupiah((selected?.saldoSiswa ?? 0) - (selected?.jumlah ?? 0)) }}
+                            </dd>
+                        </div>
+                    </dl>
+                    <p v-if="serverError" role="alert" class="text-sm text-rose-700">{{ serverError }}</p>
+                    <FormField v-if="form.status === 'rejected'" id="rejection-reason" label="Alasan penolakan (wajib)" :error="form.errors.reason">
+                        <textarea
+                            id="rejection-reason"
+                            v-model="form.reason"
+                            required
+                            maxlength="1000"
+                            class="w-full"
+                            :disabled="form.processing"
+                            :aria-invalid="!!form.errors.reason"
+                            aria-describedby="rejection-reason-error"
+                        ></textarea>
+                    </FormField>
+                    <p v-else class="text-sm text-slate-600">Saldo akan diperiksa kembali sebelum penarikan dicatat.</p>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" class="rounded-lg border px-4 py-2 text-sm" :disabled="form.processing" @click="dialog?.close()">Batal</button>
+                        <button class="sneat-primary rounded-lg px-4 py-2 text-sm font-semibold" :aria-busy="form.processing" :disabled="form.processing">
+                            {{ form.processing ? 'Memproses…' : 'Konfirmasi' }}
+                        </button>
+                    </div>
+                </form>
+            </dialog>
+        </main>
+    </MainLayout>
+</template>

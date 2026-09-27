@@ -31,11 +31,11 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard', [
             'appName' => config('app.name', 'Tabungan Siswa'),
-            'stats' => ['totalSiswa' => Siswa::count(), 'saldo' => (float) DB::table('transaksi')->selectRaw("COALESCE(SUM(CASE WHEN jenis = 'masuk' THEN jumlah ELSE -jumlah END), 0) as total")->value('total'), 'transaksiHariIni' => $today->count(), 'totalTransaksi' => Transaksi::count(), 'setoranHariIni' => (float) $todayIn, 'penarikanHariIni' => (float) $todayOut],
+            'stats' => ['totalSiswa' => Siswa::aktif()->count(), 'saldo' => (float) Transaksi::effective()->selectRaw(Transaksi::SALDO_EXPRESSION.' as total')->value('total'), 'transaksiHariIni' => $today->count(), 'totalTransaksi' => Transaksi::count(), 'setoranHariIni' => (float) $todayIn, 'penarikanHariIni' => (float) $todayOut],
             'activeSession' => compact('activeYear', 'activeSemester', 'activeClass'),
             'monthly' => $monthly,
             'types' => ['masuk' => ['jumlah' => (int) ($types['masuk']->jumlah ?? 0), 'total' => (float) ($types['masuk']->total ?? 0)], 'keluar' => ['jumlah' => (int) ($types['keluar']->jumlah ?? 0), 'total' => (float) ($types['keluar']->total ?? 0)]],
-            'recentTransactions' => Transaksi::with('siswa')->latest('id')->limit(6)->get()->map(fn ($t) => ['id' => $t->id, 'tanggal' => $t->tanggal->format('d M Y'), 'siswa' => $t->siswa?->nama ?? '-', 'jenis' => $t->jenis, 'jumlah' => (float) $t->jumlah, 'saldo' => (float) $t->saldo]),
+            'recentTransactions' => Transaksi::with('siswa')->latest('id')->limit(6)->get()->map(fn ($t) => ['id' => $t->id, 'tanggal' => $t->tanggal->translatedFormat('d M Y'), 'siswa' => $t->siswa?->nama ?? '-', 'jenis' => $t->jenis, 'jumlah' => (float) $t->jumlah, 'saldo' => (float) $t->saldo]),
         ]);
     }
 }

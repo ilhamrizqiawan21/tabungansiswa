@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class CreateBackup extends Command
 {
-    protected $signature = 'tabungan:backup';
+    protected $signature = 'tabungan:backup {--prune : Hapus arsip lama melebihi batas retensi (config tabungan.backup_retention)}';
 
     protected $description = 'Membuat arsip database dan lampiran Tabungan Siswa';
 
@@ -15,6 +15,11 @@ class CreateBackup extends Command
     {
         $name = $backups->create();
         $this->info('Backup tersimpan: '.$name);
+
+        if ($this->option('prune')) {
+            $removed = $backups->prune((int) config('tabungan.backup_retention'));
+            $this->info("Arsip lama dihapus: {$removed}");
+        }
 
         return self::SUCCESS;
     }

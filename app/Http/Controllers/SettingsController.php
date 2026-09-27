@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateSettingsRequest;
 use App\Models\Kelas;
 use App\Models\Setting;
 use App\Models\TahunPelajaran;
+use App\Services\ActiveSession;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -16,30 +17,24 @@ class SettingsController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('Settings/Index', ['settings' => [
-            'teacherName' => Setting::get('teacher_name', 'Ilham Rizqiawan, S.Pd.'),
-            'schoolName' => Setting::get('school_name', 'MTs. Al-Ihsan Batujajar'),
-            'teacherPhone' => Setting::get('teacher_phone', '0895802329062'),
-            'schoolLogo' => $this->assetUrl('school_logo'),
-            'teacherAvatar' => $this->assetUrl('teacher_avatar'),
-            'activeYear' => Setting::get('active_year', '2026/2027'),
-            'activeSemester' => Setting::get('active_semester', 'ganjil'),
-            'activeClass' => Setting::get('active_class', 'Kelas VII-A'),
-        ]]);
+        return Inertia::render('Settings/Index', [
+            'settings' => [
+                'teacherName' => Setting::get('teacher_name', 'Ilham Rizqiawan, S.Pd.'),
+                'schoolName' => Setting::get('school_name', 'MTs. Al-Ihsan Batujajar'),
+                'teacherPhone' => Setting::get('teacher_phone', '0895802329062'),
+                'schoolLogo' => $this->assetUrl('school_logo'),
+                'teacherAvatar' => $this->assetUrl('teacher_avatar'),
+                'activeYearId' => ($id = Setting::get('active_year_id')) ? (int) $id : null,
+                'activeClassId' => ($id = Setting::get('active_class_id')) ? (int) $id : null,
+            ],
+            'years' => TahunPelajaran::orderByDesc('tahun')->orderBy('semester')->get(['id', 'tahun', 'semester', 'status']),
+            'classes' => Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get(['id', 'nama_kelas', 'tingkat', 'tahun_pelajaran_id']),
+        ]);
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(UpdateSettingsRequest $request, ActiveSession $session): RedirectResponse
     {
-        $data = $request->validate([
-            'teacherName' => ['required', 'string', 'max:100'],
-            'schoolName' => ['required', 'string', 'max:150'],
-            'teacherPhone' => ['nullable', 'string', 'max:30'],
-            'activeYear' => ['required', 'regex:/^\d{4}\/\d{4}$/'],
-            'activeSemester' => ['required', 'in:ganjil,genap'],
-            'activeClass' => ['required', 'string', 'max:50'],
-            'schoolLogoFile' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'teacherAvatarFile' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ]);
+        $data = $request->validated();
 
         $oldLogo = Setting::get('school_logo');
         $oldAvatar = Setting::get('teacher_avatar');
@@ -50,7 +45,7 @@ class SettingsController extends Controller
             $logoPath = $request->file('schoolLogoFile')?->store('school-logos', 'public');
             $avatarPath = $request->file('teacherAvatarFile')?->store('avatars', 'public');
 
-            DB::transaction(function () use ($data, $logoPath, $avatarPath): void {
+            DB::transaction(function () use ($data, $logoPath, $avatarPath, $session): void {
                 Setting::put('teacher_name', $data['teacherName']);
                 Setting::put('school_name', $data['schoolName']);
                 Setting::put('teacher_phone', $data['teacherPhone'] ?? '');
@@ -60,15 +55,10 @@ class SettingsController extends Controller
                 if ($avatarPath) {
                     Setting::put('teacher_avatar', $avatarPath);
                 }
-                $year = TahunPelajaran::firstOrCreate(['tahun' => $data['activeYear'], 'semester' => $data['activeSemester']], ['status' => 'nonaktif']);
-                TahunPelajaran::query()->update(['status' => 'nonaktif']);
-                $year->update(['status' => 'aktif']);
-                $kelas = Kelas::firstOrCreate(['nama_kelas' => $data['activeClass'], 'tahun_pelajaran_id' => $year->id], ['tingkat' => 'X']);
-                Setting::put('active_year_id', (string) $year->id);
-                Setting::put('active_class_id', (string) $kelas->id);
-                Setting::put('active_year', $data['activeYear']);
-                Setting::put('active_semester', $data['activeSemester']);
-                Setting::put('active_class', $data['activeClass']);
+
+                $year = TahunPelajaran::findOrFail($data['activeYearId']);
+                $kelas = Kelas::findOrFail($data['activeClassId']);
+                $session->activate($year, $kelas);
             });
 
         } catch (\Throwable $exception) {

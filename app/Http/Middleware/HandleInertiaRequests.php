@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Setting;
+use App\Models\TransaksiApproval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
@@ -40,6 +41,9 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => ['admin' => fn () => $request->user('admin') ? ['id' => $request->user('admin')->id, 'nama' => $request->user('admin')->nama, 'username' => $request->user('admin')->username, 'role' => $request->user('admin')->role] : null],
+            'pendingApprovals' => fn () => $request->user('admin')?->isAdmin()
+                ? TransaksiApproval::whereHas('status', fn ($q) => $q->where('name', 'pending'))->count()
+                : 0,
             'activeSession' => fn () => ['kelas' => Setting::get('active_class'), 'tahun' => Setting::get('active_year'), 'semester' => Setting::get('active_semester')],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

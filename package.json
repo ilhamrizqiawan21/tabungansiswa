@@ -5,17 +5,28 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "test:ui": "node --test tests/Frontend/*.mjs"
+        "type-check": "vue-tsc --noEmit",
+        "test:ui": "node --test tests/Frontend/*.mjs",
+        "lint": "eslint resources/js",
+        "format": "prettier --write resources/js resources/css",
+        "format:check": "prettier --check resources/js resources/css"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
         "@types/node": "^26.5.0",
         "@vitejs/plugin-vue": "^6.0.8",
         "concurrently": "^10.0.3",
+        "eslint": "^9.39.5",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-vue": "^10.11.1",
+        "globals": "^17.12.0",
         "laravel-vite-plugin": "^3.1",
+        "prettier": "^3.9.9",
         "tailwindcss": "^4.0.0",
-        "typescript": "^7.0.2",
+        "typescript": "~5.9",
+        "typescript-eslint": "^8.70.1",
         "vite": "^8.0.0",
+        "vue-eslint-parser": "^10.4.1",
         "vue-tsc": "^3.3.11"
     },
     "optionalDependencies": {

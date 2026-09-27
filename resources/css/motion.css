@@ -1,97 +1,458 @@
 :root {
-    --motion-ease: cubic-bezier(.22, 1, .36, 1);
+    --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --motion-fast: 160ms;
     --motion-normal: 280ms;
 }
-.app-root { animation: app-reveal 320ms ease-out; }
-.page-content { view-transition-name: page-content; }
-.activity-layer { view-transition-name: activity-feedback; }
-::view-transition-old(root) { display: none; }
-::view-transition-new(root) { animation: none; }
-::view-transition-group(page-content) { animation-duration: var(--motion-normal); animation-timing-function: var(--motion-ease); }
-::view-transition-old(page-content) { animation: page-out 150ms ease both; }
-::view-transition-new(page-content) { animation: page-in var(--motion-normal) var(--motion-ease) both; }
+.app-root {
+    animation: app-reveal 320ms ease-out;
+}
+.page-content {
+    view-transition-name: page-content;
+}
+.activity-layer {
+    view-transition-name: activity-feedback;
+}
+::view-transition-old(root) {
+    display: none;
+}
+::view-transition-new(root) {
+    animation: none;
+}
+::view-transition-group(page-content) {
+    animation-duration: var(--motion-normal);
+    animation-timing-function: var(--motion-ease);
+}
+::view-transition-old(page-content) {
+    animation: page-out 150ms ease both;
+}
+::view-transition-new(page-content) {
+    animation: page-in var(--motion-normal) var(--motion-ease) both;
+}
 ::view-transition-group(activity-feedback),
 ::view-transition-old(activity-feedback),
-::view-transition-new(activity-feedback) { animation: none; }
-::view-transition-old(activity-feedback) { display: none; }
-::view-transition { pointer-events: none; }
-.page-content.page-entry { animation: page-in var(--motion-normal) var(--motion-ease); }
-.clay-navigation { transition: transform 320ms var(--motion-ease), visibility 320ms; }
-.sneat-sidebar-link { transition: background-color 180ms ease, color 180ms ease, transform 220ms var(--motion-ease); }
-.sneat-sidebar-link:hover { transform: translateX(2px); }
-.sneat-sidebar-link.active::before { animation: indicator-reveal 240ms var(--motion-ease); }
-.clay-shell :is(button, a.sneat-primary, a[class*="rounded"], .pagination-button, .download-link) {
-    transition: background-color var(--motion-fast) ease, color var(--motion-fast) ease, border-color var(--motion-fast) ease, opacity var(--motion-fast) ease, transform var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) ease;
+::view-transition-new(activity-feedback) {
+    animation: none;
 }
-.clay-shell button:not(:disabled):active, .clay-shell a.sneat-primary:active { transform: scale(.98); }
-.clay-shell :is(input, select, textarea) { transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease; }
-.clay-shell :is(input, select, textarea):focus { box-shadow: 0 0 0 3px #6366f114; }
-.clay-shell .sneat-card { transition: border-color 200ms ease, box-shadow 200ms ease; }
-.clay-shell table tbody tr { transition: background-color 180ms ease; }
-.clay-shell main :is([role="alert"], [role="status"], .clay-notice, .bg-emerald-50.mb-4, .bg-emerald-50.mb-5) { animation: notice-in 220ms var(--motion-ease); }
-.clay-shell button[aria-busy="true"] { cursor: wait; }
-.clay-shell button[aria-busy="true"]::before {
-    content: ""; display: inline-block; width: 1em; height: 1em; margin-right: .25rem; vertical-align: -.125em;
-    border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; flex-shrink: 0;
+::view-transition-old(activity-feedback) {
+    display: none;
+}
+::view-transition {
+    pointer-events: none;
+}
+.page-content.page-entry {
+    animation: page-in var(--motion-normal) var(--motion-ease);
+}
+.sneat-navigation {
+    transition:
+        transform 320ms var(--motion-ease),
+        visibility 320ms;
+}
+.sneat-sidebar-link {
+    transition:
+        background-color 180ms ease,
+        color 180ms ease,
+        transform 220ms var(--motion-ease);
+}
+.sneat-sidebar-link:hover {
+    transform: translateX(2px);
+}
+.sneat-sidebar-link.active::before {
+    animation: indicator-reveal 240ms var(--motion-ease);
+}
+.sneat-shell :is(button, a.sneat-primary, a[class*='rounded'], .pagination-button, .download-link) {
+    transition:
+        background-color var(--motion-fast) ease,
+        color var(--motion-fast) ease,
+        border-color var(--motion-fast) ease,
+        opacity var(--motion-fast) ease,
+        transform var(--motion-fast) var(--motion-ease),
+        box-shadow var(--motion-fast) ease;
+}
+.sneat-shell button:not(:disabled):active,
+.sneat-shell a.sneat-primary:active {
+    transform: scale(0.98);
+}
+.sneat-shell :is(input, select, textarea) {
+    transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease,
+        background-color 180ms ease;
+}
+.sneat-shell :is(input, select, textarea):focus {
+    box-shadow: 0 0 0 3px #6366f114;
+}
+.sneat-shell .sneat-card {
+    transition:
+        border-color 200ms ease,
+        box-shadow 200ms ease;
+}
+.sneat-shell table tbody tr {
+    transition: background-color 180ms ease;
+}
+.sneat-shell main :is([role='alert'], [role='status'], .sneat-notice, .bg-emerald-50.mb-4, .bg-emerald-50.mb-5) {
+    animation: notice-in 220ms var(--motion-ease);
+}
+.sneat-shell button[aria-busy='true'] {
+    cursor: wait;
+}
+.sneat-shell button[aria-busy='true']::before {
+    content: '';
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: 0.25rem;
+    vertical-align: -0.125em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    flex-shrink: 0;
     animation: loading-spin 750ms linear infinite;
 }
-.download-link { display: inline-flex; align-items: center; gap: .5rem; }
-.download-link[aria-busy="true"] { cursor: wait; opacity: .75; }
-.loading-spinner { display: inline-block; width: 1rem; height: 1rem; flex-shrink: 0; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: loading-spin 750ms linear infinite; }
-.activity-layer { position: fixed; inset: 0; z-index: 10000; pointer-events: none; }
-.activity-bar { position: absolute; inset: 0 0 auto; height: 3px; overflow: hidden; background: #e0e7ff; }
-.activity-bar span { display: block; width: 38%; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #818cf8, #4338ca); animation: loading-sweep 1250ms ease-in-out infinite; }
-.activity-pill { position: absolute; bottom: max(1.5rem, env(safe-area-inset-bottom)); left: 50%; display: flex; align-items: center; gap: .7rem; width: max-content; max-width: calc(100vw - 2rem); padding: .85rem 1.2rem; border: 1px solid #e0e7ff; border-radius: 999px; background: #ffffffed; color: #4338ca; box-shadow: 0 8px 30px #1e293b12; backdrop-filter: blur(12px); font-size: .8125rem; font-weight: 600; transform: translateX(-50%); }
-.activity-error { position: absolute; right: 1rem; bottom: 5.5rem; display: flex; align-items: center; gap: 1rem; width: min(25rem, calc(100vw - 2rem)); padding: 1rem; border: 1px solid #fecdd3; border-radius: 12px; background: #fff1f2; color: #9f1239; font-size: .875rem; pointer-events: auto; box-shadow: 0 8px 30px #1e293b12; }
-.activity-error button { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 6px; font-size: 1.5rem; cursor: pointer; }
-.activity-announcer { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.loading-bar-enter-active, .loading-bar-leave-active { transition: opacity 180ms ease; }
-.loading-bar-enter-from, .loading-bar-leave-to { opacity: 0; }
-.soft-toast-enter-active, .soft-toast-leave-active { transition: opacity 200ms ease, translate 260ms var(--motion-ease); }
-.soft-toast-enter-from, .soft-toast-leave-to { opacity: 0; translate: 0 8px; }
-.soft-fade-enter-active, .soft-fade-leave-active { transition: opacity 220ms ease; }
-.soft-panel-enter-active, .soft-panel-leave-active { transition: opacity 200ms ease, transform 240ms var(--motion-ease); }
-.soft-panel-enter-from, .soft-panel-leave-to { opacity: 0; transform: translateY(-6px); }
-dialog[open] { animation: dialog-in 240ms var(--motion-ease); }
-dialog[open]::backdrop { animation: app-reveal 220ms ease; }
-@keyframes app-reveal { from { opacity: 0; } to { opacity: 1; } }
-@keyframes page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes page-out { to { opacity: 0; transform: translateY(-4px); } }
-@keyframes notice-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes dialog-in { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
-@keyframes indicator-reveal { from { opacity: 0; transform: scaleY(.5); } to { opacity: 1; transform: scaleY(1); } }
-@keyframes loading-spin { to { transform: rotate(360deg); } }
-@keyframes loading-sweep { from { transform: translateX(-110%); } to { transform: translateX(370%); } }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
-    .activity-bar span { width: 100%; }
-    .sneat-sidebar-link:hover, .clay-shell button:not(:disabled):active, .clay-shell a.sneat-primary:active { transform: none; }
+.download-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
-@media print { .activity-layer { display: none; } }
-.confirmation-dialog { width: min(28rem, calc(100vw - 2rem)); padding: 1.5rem; border-radius: 16px; background: white; }
-.confirmation-dialog::backdrop { background: #0f172a55; backdrop-filter: blur(3px); }
-.confirmation-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #fff1f2; color: #e11d48; }
-.confirmation-dialog button { min-height: 42px; padding: .6rem 1rem; border-radius: 8px; font-size: .8125rem; font-weight: 600; cursor: pointer; transition: background-color 160ms ease, transform 160ms ease; }
-.confirmation-dialog button:active { transform: scale(.98); }
-.confirmation-cancel { border: 1px solid #cbd5e1; color: #475569; background: white; }
-.confirmation-cancel:hover { background: #f8fafc; }
-.confirmation-delete { border: 1px solid #e11d48; background: #e11d48; color: white; }
-.confirmation-delete:hover { background: #be123c; }
-@supports (transition-behavior: allow-discrete) {
-    dialog { opacity: 0; transform: translateY(8px) scale(.985); transition: opacity 200ms ease, transform 240ms var(--motion-ease), display 240ms allow-discrete, overlay 240ms allow-discrete; }
-    dialog[open] { opacity: 1; transform: translateY(0) scale(1); animation: none; }
-    dialog::backdrop { opacity: 0; transition: opacity 200ms ease, display 240ms allow-discrete, overlay 240ms allow-discrete; }
-    dialog[open]::backdrop { opacity: 1; animation: none; }
-    @starting-style {
-        dialog[open] { opacity: 0; transform: translateY(8px) scale(.985); }
-        dialog[open]::backdrop { opacity: 0; }
+.download-link[aria-busy='true'] {
+    cursor: wait;
+    opacity: 0.75;
+}
+.loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: loading-spin 750ms linear infinite;
+}
+.activity-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    pointer-events: none;
+}
+.activity-bar {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    overflow: hidden;
+    background: #e0e7ff;
+}
+.activity-bar span {
+    display: block;
+    width: 38%;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #818cf8, #4338ca);
+    animation: loading-sweep 1250ms ease-in-out infinite;
+}
+.activity-pill {
+    position: absolute;
+    bottom: max(1.5rem, env(safe-area-inset-bottom));
+    left: 50%;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: max-content;
+    max-width: calc(100vw - 2rem);
+    padding: 0.85rem 1.2rem;
+    border: 1px solid #e0e7ff;
+    border-radius: 999px;
+    background: #ffffffed;
+    color: #4338ca;
+    box-shadow: 0 8px 30px #1e293b12;
+    backdrop-filter: blur(12px);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transform: translateX(-50%);
+}
+.activity-error {
+    position: absolute;
+    right: 1rem;
+    bottom: 5.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: min(25rem, calc(100vw - 2rem));
+    padding: 1rem;
+    border: 1px solid #fecdd3;
+    border-radius: 12px;
+    background: #fff1f2;
+    color: #9f1239;
+    font-size: 0.875rem;
+    pointer-events: auto;
+    box-shadow: 0 8px 30px #1e293b12;
+}
+.activity-error button {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.activity-announcer {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+.loading-bar-enter-active,
+.loading-bar-leave-active {
+    transition: opacity 180ms ease;
+}
+.loading-bar-enter-from,
+.loading-bar-leave-to {
+    opacity: 0;
+}
+.soft-toast-enter-active,
+.soft-toast-leave-active {
+    transition:
+        opacity 200ms ease,
+        translate 260ms var(--motion-ease);
+}
+.soft-toast-enter-from,
+.soft-toast-leave-to {
+    opacity: 0;
+    translate: 0 8px;
+}
+.soft-fade-enter-active,
+.soft-fade-leave-active {
+    transition: opacity 220ms ease;
+}
+.soft-panel-enter-active,
+.soft-panel-leave-active {
+    transition:
+        opacity 200ms ease,
+        transform 240ms var(--motion-ease);
+}
+.soft-panel-enter-from,
+.soft-panel-leave-to {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+dialog[open] {
+    animation: dialog-in 240ms var(--motion-ease);
+}
+dialog[open]::backdrop {
+    animation: app-reveal 220ms ease;
+}
+@keyframes app-reveal {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes page-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes page-out {
+    to {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+}
+@keyframes notice-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes dialog-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.985);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+@keyframes indicator-reveal {
+    from {
+        opacity: 0;
+        transform: scaleY(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+@keyframes loading-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+@keyframes loading-sweep {
+    from {
+        transform: translateX(-110%);
+    }
+    to {
+        transform: translateX(370%);
     }
 }
 @media (prefers-reduced-motion: reduce) {
-    dialog, dialog::backdrop, .confirmation-dialog button { transition: none !important; animation: none !important; }
-    dialog, .confirmation-dialog button:active { transform: none; }
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+    .activity-bar span {
+        width: 100%;
+    }
+    .sneat-sidebar-link:hover,
+    .sneat-shell button:not(:disabled):active,
+    .sneat-shell a.sneat-primary:active {
+        transform: none;
+    }
 }
-.app-boot { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; background: #f8fafc; color: #4338ca; font: 500 .875rem ui-sans-serif, system-ui, sans-serif; }
-.app-boot .loading-spinner { width: 1.75rem; height: 1.75rem; border-width: 3px; }
+@media print {
+    .activity-layer {
+        display: none;
+    }
+}
+.confirmation-dialog {
+    width: min(28rem, calc(100vw - 2rem));
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: white;
+}
+.confirmation-dialog::backdrop {
+    background: #0f172a55;
+    backdrop-filter: blur(3px);
+}
+.confirmation-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #fff1f2;
+    color: #e11d48;
+}
+.confirmation-dialog button {
+    min-height: 42px;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 160ms ease,
+        transform 160ms ease;
+}
+.confirmation-dialog button:active {
+    transform: scale(0.98);
+}
+.confirmation-cancel {
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    background: white;
+}
+.confirmation-cancel:hover {
+    background: #f8fafc;
+}
+.confirmation-delete {
+    border: 1px solid #e11d48;
+    background: #e11d48;
+    color: white;
+}
+.confirmation-delete:hover {
+    background: #be123c;
+}
+@supports (transition-behavior: allow-discrete) {
+    dialog {
+        opacity: 0;
+        transform: translateY(8px) scale(0.985);
+        transition:
+            opacity 200ms ease,
+            transform 240ms var(--motion-ease),
+            display 240ms allow-discrete,
+            overlay 240ms allow-discrete;
+    }
+    dialog[open] {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        animation: none;
+    }
+    dialog::backdrop {
+        opacity: 0;
+        transition:
+            opacity 200ms ease,
+            display 240ms allow-discrete,
+            overlay 240ms allow-discrete;
+    }
+    dialog[open]::backdrop {
+        opacity: 1;
+        animation: none;
+    }
+    @starting-style {
+        dialog[open] {
+            opacity: 0;
+            transform: translateY(8px) scale(0.985);
+        }
+        dialog[open]::backdrop {
+            opacity: 0;
+        }
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    dialog,
+    dialog::backdrop,
+    .confirmation-dialog button {
+        transition: none !important;
+        animation: none !important;
+    }
+    dialog,
+    .confirmation-dialog button:active {
+        transform: none;
+    }
+}
+.app-boot {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: #f8fafc;
+    color: #4338ca;
+    font:
+        500 0.875rem ui-sans-serif,
+        system-ui,
+        sans-serif;
+}
+.app-boot .loading-spinner {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-width: 3px;
+}

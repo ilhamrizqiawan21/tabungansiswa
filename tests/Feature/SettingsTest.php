@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Admin;
 use App\Models\Kelas;
 use App\Models\Setting;
+use App\Models\TahunPelajaran;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Exceptions;
@@ -28,14 +29,16 @@ class SettingsTest extends TestCase
 
     private function settings(): array
     {
+        $year = TahunPelajaran::firstOrCreate(['tahun' => '2026/2027', 'semester' => 'ganjil']);
+        $kelas = Kelas::firstOrCreate(['nama_kelas' => 'VII A', 'tahun_pelajaran_id' => $year->id], ['tingkat' => 'VII']);
+
         return [
             '_method' => 'patch',
             'schoolName' => 'Sekolah Pelita',
             'teacherName' => 'Ibu Guru',
             'teacherPhone' => '081234567890',
-            'activeYear' => '2026/2027',
-            'activeSemester' => 'ganjil',
-            'activeClass' => 'VII A',
+            'activeYearId' => $year->id,
+            'activeClassId' => $kelas->id,
         ];
     }
 
@@ -103,7 +106,7 @@ class SettingsTest extends TestCase
                 'schoolLogoFile' => UploadedFile::fake()->image('logo.png')->size(2049),
             ])->assertSessionHasErrors('schoolLogoFile');
 
-        $this->assertDatabaseCount('settings', 0);
+        $this->assertDatabaseMissing('settings', ['key' => 'school_name']);
         $this->assertSame([], Storage::disk('public')->allFiles());
     }
 
@@ -128,13 +131,14 @@ class SettingsTest extends TestCase
         Storage::disk('public')->put('school-logos/old.png', 'old logo');
         Setting::put('school_name', 'Sekolah Lama');
         Setting::put('school_logo', 'school-logos/old.png');
-        Kelas::creating(function () {
+        $settings = $this->settings();
+        TahunPelajaran::updating(function () {
             throw new \RuntimeException('Simulated database failure');
         });
         $logo = UploadedFile::fake()->image('new.png');
 
         $this->actingAs($this->admin(), 'admin')
-            ->post('/pengaturan', [...$this->settings(), 'schoolLogoFile' => $logo])
+            ->post('/pengaturan', [...$settings, 'schoolLogoFile' => $logo])
             ->assertInternalServerError();
 
         $this->assertDatabaseHas('settings', ['key' => 'school_name', 'value' => 'Sekolah Lama']);

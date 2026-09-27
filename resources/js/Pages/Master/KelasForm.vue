@@ -1,2 +1,93 @@
-<script setup lang="ts">import { Link, useForm } from '@inertiajs/vue3'; import MainLayout from '../../Layouts/MainLayout.vue'; const props=defineProps<{years:Array<any>;kelas?:any}>(); const form=useForm({nama_kelas:props.kelas?.nama_kelas??'',tingkat:props.kelas?.tingkat??'X',jurusan:props.kelas?.jurusan??'',tahun_pelajaran_id:props.kelas?.tahun_pelajaran_id??'',wali_kelas:props.kelas?.wali_kelas??''}); const submit=()=>props.kelas?form.patch(`/master/kelas/${props.kelas.id}`):form.post('/master/kelas');</script>
-<template><MainLayout><main class="p-4 sm:p-6 lg:p-8"><div class="mx-auto max-w-3xl"><Link href="/master/kelas" class="text-sm font-semibold text-indigo-600">← Kembali ke kelas</Link><section class="sneat-card mt-5 p-5 sm:p-7"><div class="border-b border-slate-100 pb-5"><p class="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-600">Master akademik</p><h1 class="mt-2 text-2xl font-bold text-slate-900">{{ kelas?'Edit kelas':'Tambah kelas' }}</h1><p class="mt-1 text-sm text-slate-500">Lengkapi informasi kelas dan periode akademik.</p></div><form class="mt-6 space-y-5" @submit.prevent="submit"><div class="grid gap-5 sm:grid-cols-2"><div><label class="mb-2 block text-sm font-medium">Nama kelas</label><input v-model="form.nama_kelas" class="w-full px-3 py-2.5" placeholder="XI IPA 1" required><p v-if="form.errors.nama_kelas" class="mt-1 text-xs text-rose-600">{{ form.errors.nama_kelas }}</p></div><div><label class="mb-2 block text-sm font-medium">Tingkat</label><select v-model="form.tingkat" class="w-full px-3 py-2.5"><option>X</option><option>XI</option><option>XII</option></select></div></div><div class="grid gap-5 sm:grid-cols-2"><div><label class="mb-2 block text-sm font-medium">Jurusan</label><input v-model="form.jurusan" class="w-full px-3 py-2.5" placeholder="IPA / IPS / Umum"></div><div><label class="mb-2 block text-sm font-medium">Tahun pelajaran</label><select v-model="form.tahun_pelajaran_id" class="w-full px-3 py-2.5" required><option value="">Pilih periode</option><option v-for="year in years" :key="year.id" :value="year.id">{{ year.tahun }} · {{ year.semester }}{{ year.status==='aktif'?' (Aktif)':'' }}</option></select><p v-if="form.errors.tahun_pelajaran_id" class="mt-1 text-xs text-rose-600">{{ form.errors.tahun_pelajaran_id }}</p></div></div><div><label class="mb-2 block text-sm font-medium">Wali kelas <span class="font-normal text-slate-400">(opsional)</span></label><input v-model="form.wali_kelas" class="w-full px-3 py-2.5" placeholder="Nama wali kelas"></div><div class="flex justify-end gap-3 border-t border-slate-100 pt-5"><Link href="/master/kelas" class="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Batal</Link><button :aria-busy="form.processing" :disabled="form.processing" class="sneat-primary rounded-lg px-5 py-2.5 text-sm font-semibold text-white">{{ form.processing?'Menyimpan…':kelas?'Simpan perubahan':'Simpan kelas' }}</button></div></form></section></div></main></MainLayout></template>
+<script setup lang="ts">
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import FormField from '../../Components/FormField.vue';
+import PageHeader from '../../Components/PageHeader.vue';
+import MainLayout from '../../Layouts/MainLayout.vue';
+import type { Kelas, TahunPelajaran } from '../../types';
+
+const props = defineProps<{ years: TahunPelajaran[]; kelas?: Kelas }>();
+const form = useForm({
+    nama_kelas: props.kelas?.nama_kelas ?? '',
+    tingkat: props.kelas?.tingkat ?? 'VII',
+    jurusan: props.kelas?.jurusan ?? '',
+    tahun_pelajaran_id: props.kelas?.tahun_pelajaran_id ?? ('' as number | ''),
+    wali_kelas: props.kelas?.wali_kelas ?? '',
+});
+const submit = () => (props.kelas ? form.patch(`/master/kelas/${props.kelas.id}`) : form.post('/master/kelas'));
+</script>
+
+<template>
+    <MainLayout>
+        <Head :title="kelas ? 'Edit kelas' : 'Tambah kelas'" />
+        <main class="p-4 sm:p-6 lg:p-8">
+            <div class="mx-auto max-w-3xl">
+                <Link href="/master/kelas" class="text-sm font-semibold text-indigo-600">← Kembali ke kelas</Link>
+                <section class="sneat-card mt-5 p-5 sm:p-7">
+                    <PageHeader
+                        eyebrow="Master data"
+                        :title="kelas ? 'Edit kelas' : 'Tambah kelas'"
+                        description="Lengkapi informasi kelas dan periode akademik."
+                    />
+                    <p v-if="!years.length" class="sneat-banner is-warning mb-5">
+                        Belum ada tahun pelajaran.
+                        <Link href="/master/tahun-pelajaran" class="font-semibold underline">Tambahkan periode</Link>
+                        terlebih dahulu.
+                    </p>
+                    <form class="space-y-5" @submit.prevent="submit">
+                        <fieldset :disabled="form.processing" class="space-y-5">
+                            <div class="grid gap-5 sm:grid-cols-2">
+                                <FormField id="nama-kelas" label="Nama kelas" :error="form.errors.nama_kelas">
+                                    <input
+                                        id="nama-kelas"
+                                        v-model="form.nama_kelas"
+                                        class="w-full"
+                                        placeholder="VII-A"
+                                        maxlength="50"
+                                        required
+                                        :aria-invalid="!!form.errors.nama_kelas"
+                                        aria-describedby="nama-kelas-error"
+                                    />
+                                </FormField>
+                                <FormField id="tingkat" label="Tingkat" :error="form.errors.tingkat">
+                                    <input id="tingkat" v-model="form.tingkat" list="tingkat-options" class="w-full" maxlength="10" required />
+                                    <datalist id="tingkat-options">
+                                        <option v-for="level in ['VII', 'VIII', 'IX', 'X', 'XI', 'XII']" :key="level" :value="level" />
+                                    </datalist>
+                                </FormField>
+                            </div>
+                            <div class="grid gap-5 sm:grid-cols-2">
+                                <FormField id="jurusan" label="Jurusan" optional :error="form.errors.jurusan">
+                                    <input id="jurusan" v-model="form.jurusan" class="w-full" placeholder="IPA / IPS / Umum" maxlength="50" />
+                                </FormField>
+                                <FormField id="tahun-pelajaran" label="Tahun pelajaran" :error="form.errors.tahun_pelajaran_id">
+                                    <select
+                                        id="tahun-pelajaran"
+                                        v-model="form.tahun_pelajaran_id"
+                                        class="w-full"
+                                        required
+                                        :aria-invalid="!!form.errors.tahun_pelajaran_id"
+                                        aria-describedby="tahun-pelajaran-error"
+                                    >
+                                        <option value="">Pilih periode</option>
+                                        <option v-for="year in years" :key="year.id" :value="year.id">
+                                            {{ year.tahun }} · {{ year.semester }}{{ year.status === 'aktif' ? ' (Aktif)' : '' }}
+                                        </option>
+                                    </select>
+                                </FormField>
+                            </div>
+                            <FormField id="wali-kelas" label="Wali kelas" optional :error="form.errors.wali_kelas">
+                                <input id="wali-kelas" v-model="form.wali_kelas" class="w-full" placeholder="Nama wali kelas" maxlength="100" />
+                            </FormField>
+                        </fieldset>
+                        <div class="flex justify-end gap-3 border-t pt-5">
+                            <Link href="/master/kelas" class="rounded-lg border px-4 py-2.5 text-sm font-semibold">Batal</Link>
+                            <button :aria-busy="form.processing" :disabled="form.processing" class="sneat-primary rounded-lg px-5 py-2.5 text-sm font-semibold">
+                                {{ form.processing ? 'Menyimpan…' : kelas ? 'Simpan perubahan' : 'Simpan kelas' }}
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </MainLayout>
+</template>

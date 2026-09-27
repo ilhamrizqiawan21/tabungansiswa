@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateApprovalRequest;
 use App\Models\ApprovalStatus;
 use App\Models\Siswa;
 use App\Models\Transaksi;
@@ -15,20 +16,26 @@ use Inertia\Response;
 
 class ApprovalController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $status = in_array($request->query('status'), ['pending', 'approved', 'rejected'], true)
+            ? $request->query('status')
+            : 'pending';
+
         $items = TransaksiApproval::with([
             'siswa',
             'transaksi.siswa',
             'status',
             'requestedBy',
+            'approvedBy',
         ])
-            ->whereHas('status', function ($query) {
-                $query->where('name', 'pending');
+            ->whereHas('status', function ($query) use ($status) {
+                $query->where('name', $status);
             })
-            ->latest('request_date')
+            ->when($status === 'pending', fn ($q) => $q->latest('request_date'), fn ($q) => $q->latest('approval_date'))
             ->paginate(15)
-            ->through(function ($approval) {
+            ->withQueryString()
+            ->through(function ($approval) use ($status) {
                 $tanggal = $approval->tanggal
                     ?? $approval->transaksi?->tanggal;
 
@@ -42,43 +49,32 @@ class ApprovalController extends Controller
                 return [
                     'id' => $approval->id,
                     'transaksiId' => $approval->transaksi_id,
-                    'tanggal' => $tanggal?->format('d M Y'),
+                    'tanggal' => $tanggal?->translatedFormat('d M Y'),
                     'siswa' => $siswa?->nama ?? '-',
+                    'saldoSiswa' => $status === 'pending' && $siswa ? $siswa->currentBalance() : null,
                     'jenis' => 'keluar',
                     'jumlah' => (float) $jumlah,
+                    'keterangan' => $approval->keterangan ?? $approval->transaksi?->keterangan,
                     'requestedBy' => $approval->requestedBy?->nama ?? '-',
-                    'requestDate' => $approval->request_date?->format(
-                        'd M Y H:i'
-                    ),
+                    'requestDate' => $approval->request_date?->translatedFormat('d M Y H:i'),
+                    'status' => $approval->status?->name,
+                    'approvedBy' => $approval->approvedBy?->nama,
+                    'approvalDate' => $approval->approval_date?->translatedFormat('d M Y H:i'),
+                    'rejectionReason' => $approval->rejection_reason,
                 ];
             });
 
         return Inertia::render('Approvals/Index', [
             'items' => $items,
+            'status' => $status,
         ]);
     }
 
     public function update(
-        Request $request,
+        UpdateApprovalRequest $request,
         TransaksiApproval $approval
     ): RedirectResponse {
-        abort_unless(
-            $request->user('admin')?->isAdmin(),
-            403
-        );
-
-        $data = $request->validate([
-            'status' => [
-                'required',
-                'in:approved,rejected',
-            ],
-            'reason' => [
-                'required_if:status,rejected',
-                'nullable',
-                'string',
-                'max:1000',
-            ],
-        ]);
+        $data = $request->validated();
 
         DB::transaction(function () use (
             $approval,
@@ -147,10 +143,9 @@ class ApprovalController extends Controller
             $keterangan = $approval->keterangan
                 ?? $legacyTransaction?->keterangan;
 
-            if (!$siswaId || !$tanggal || $jumlah <= 0) {
+            if (! $siswaId || ! $tanggal || $jumlah <= 0) {
                 throw ValidationException::withMessages([
-                    'approval' =>
-                        'Data pengajuan approval tidak lengkap.',
+                    'approval' => 'Data pengajuan approval tidak lengkap.',
                 ]);
             }
 
@@ -162,8 +157,7 @@ class ApprovalController extends Controller
 
             if ($jumlah > $saldo) {
                 throw ValidationException::withMessages([
-                    'jumlah' =>
-                        'Saldo siswa sudah tidak mencukupi untuk penarikan ini.',
+                    'jumlah' => 'Saldo siswa sudah tidak mencukupi untuk penarikan ini.',
                 ]);
             }
 
@@ -211,31 +205,8 @@ class ApprovalController extends Controller
     {
         return (float) Transaksi::query()
             ->where('siswa_id', $siswaId)
-            ->where(function ($query) {
-                $query
-                    ->whereDoesntHave('approval')
-                    ->orWhereHas(
-                        'approval.status',
-                        function ($status) {
-                            $status->where(
-                                'name',
-                                'approved'
-                            );
-                        }
-                    );
-            })
-            ->selectRaw(
-                "COALESCE(
-                    SUM(
-                        CASE
-                            WHEN jenis = 'masuk'
-                                THEN jumlah
-                            ELSE -jumlah
-                        END
-                    ),
-                    0
-                ) AS saldo"
-            )
+            ->effective()
+            ->selectRaw(Transaksi::SALDO_EXPRESSION.' as saldo')
             ->value('saldo');
     }
 }

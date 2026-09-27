@@ -1,0 +1,138 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validation Language Lines (Bahasa Indonesia)
+    |--------------------------------------------------------------------------
+    |
+    | Rules not listed here fall back to the English defaults.
+    |
+    */
+
+    'accepted' => ':Attribute harus disetujui.',
+    'after' => ':Attribute harus berupa tanggal setelah :date.',
+    'after_or_equal' => ':Attribute harus berupa tanggal setelah atau sama dengan :date.',
+    'alpha' => ':Attribute hanya boleh berisi huruf.',
+    'alpha_dash' => ':Attribute hanya boleh berisi huruf, angka, tanda hubung, dan garis bawah.',
+    'alpha_num' => ':Attribute hanya boleh berisi huruf dan angka.',
+    'array' => ':Attribute harus berupa daftar.',
+    'before' => ':Attribute harus berupa tanggal sebelum :date.',
+    'before_or_equal' => ':Attribute harus berupa tanggal sebelum atau sama dengan :date.',
+    'between' => [
+        'array' => ':Attribute harus memiliki :min sampai :max item.',
+        'file' => ':Attribute harus berukuran :min sampai :max kilobita.',
+        'numeric' => ':Attribute harus bernilai :min sampai :max.',
+        'string' => ':Attribute harus berisi :min sampai :max karakter.',
+    ],
+    'boolean' => ':Attribute harus bernilai benar atau salah.',
+    'confirmed' => 'Konfirmasi :attribute tidak cocok.',
+    'date' => ':Attribute bukan tanggal yang valid.',
+    'date_equals' => ':Attribute harus berupa tanggal yang sama dengan :date.',
+    'date_format' => ':Attribute tidak sesuai format :format.',
+    'decimal' => ':Attribute harus memiliki :decimal angka desimal.',
+    'different' => ':Attribute dan :other harus berbeda.',
+    'digits' => ':Attribute harus terdiri dari :digits angka.',
+    'digits_between' => ':Attribute harus terdiri dari :min sampai :max angka.',
+    'distinct' => ':Attribute memiliki nilai yang duplikat.',
+    'email' => ':Attribute harus berupa alamat email yang valid.',
+    'exists' => ':Attribute yang dipilih tidak valid.',
+    'file' => ':Attribute harus berupa file.',
+    'filled' => ':Attribute wajib diisi.',
+    'gt' => [
+        'array' => ':Attribute harus memiliki lebih dari :value item.',
+        'file' => ':Attribute harus berukuran lebih dari :value kilobita.',
+        'numeric' => ':Attribute harus lebih besar dari :value.',
+        'string' => ':Attribute harus berisi lebih dari :value karakter.',
+    ],
+    'gte' => [
+        'array' => ':Attribute harus memiliki :value item atau lebih.',
+        'file' => ':Attribute harus berukuran :value kilobita atau lebih.',
+        'numeric' => ':Attribute harus lebih besar dari atau sama dengan :value.',
+        'string' => ':Attribute harus berisi :value karakter atau lebih.',
+    ],
+    'image' => ':Attribute harus berupa gambar.',
+    'in' => ':Attribute yang dipilih tidak valid.',
+    'integer' => ':Attribute harus berupa bilangan bulat.',
+    'lt' => [
+        'array' => ':Attribute harus memiliki kurang dari :value item.',
+        'file' => ':Attribute harus berukuran kurang dari :value kilobita.',
+        'numeric' => ':Attribute harus kurang dari :value.',
+        'string' => ':Attribute harus berisi kurang dari :value karakter.',
+    ],
+    'lte' => [
+        'array' => ':Attribute tidak boleh memiliki lebih dari :value item.',
+        'file' => ':Attribute harus berukuran kurang dari atau sama dengan :value kilobita.',
+        'numeric' => ':Attribute harus kurang dari atau sama dengan :value.',
+        'string' => ':Attribute harus berisi :value karakter atau kurang.',
+    ],
+    'max' => [
+        'array' => ':Attribute tidak boleh memiliki lebih dari :max item.',
+        'file' => ':Attribute tidak boleh lebih besar dari :max kilobita.',
+        'numeric' => ':Attribute tidak boleh lebih dari :max.',
+        'string' => ':Attribute tidak boleh lebih dari :max karakter.',
+    ],
+    'mimes' => ':Attribute harus berupa file berjenis: :values.',
+    'mimetypes' => ':Attribute harus berupa file berjenis: :values.',
+    'min' => [
+        'array' => ':Attribute harus memiliki minimal :min item.',
+        'file' => ':Attribute harus berukuran minimal :min kilobita.',
+        'numeric' => ':Attribute minimal bernilai :min.',
+        'string' => ':Attribute minimal berisi :min karakter.',
+    ],
+    'not_in' => ':Attribute yang dipilih tidak valid.',
+    'numeric' => ':Attribute harus berupa angka.',
+    'present' => ':Attribute wajib ada.',
+    'regex' => 'Format :attribute tidak valid.',
+    'required' => ':Attribute wajib diisi.',
+    'required_if' => ':Attribute wajib diisi bila :other adalah :value.',
+    'required_unless' => ':Attribute wajib diisi kecuali :other ada di :values.',
+    'required_with' => ':Attribute wajib diisi bila terdapat :values.',
+    'required_without' => ':Attribute wajib diisi bila tidak terdapat :values.',
+    'same' => ':Attribute dan :other harus sama.',
+    'size' => [
+        'array' => ':Attribute harus mengandung :size item.',
+        'file' => ':Attribute harus berukuran :size kilobita.',
+        'numeric' => ':Attribute harus berukuran :size.',
+        'string' => ':Attribute harus berukuran :size karakter.',
+    ],
+    'string' => ':Attribute harus berupa teks.',
+    'unique' => ':Attribute sudah digunakan.',
+    'uploaded' => ':Attribute gagal diunggah.',
+    'url' => 'Format :attribute tidak valid.',
+
+    'custom' => [],
+
+    'attributes' => [
+        'nis' => 'NIS',
+        'nama' => 'nama',
+        'kontak' => 'kontak',
+        'nama_kelas' => 'nama kelas',
+        'tingkat' => 'tingkat',
+        'jurusan' => 'jurusan',
+        'wali_kelas' => 'wali kelas',
+        'tahun_pelajaran_id' => 'tahun pelajaran',
+        'tahun' => 'tahun',
+        'semester' => 'semester',
+        'siswa_id' => 'siswa',
+        'kelas_id' => 'kelas',
+        'tanggal' => 'tanggal',
+        'jenis' => 'jenis transaksi',
+        'jumlah' => 'jumlah',
+        'keterangan' => 'keterangan',
+        'start_date' => 'tanggal mulai',
+        'end_date' => 'tanggal akhir',
+        'search' => 'pencarian',
+        'file' => 'file',
+        'username' => 'username',
+        'password' => 'password',
+        'reason' => 'alasan',
+        'teacherName' => 'nama pengelola',
+        'schoolName' => 'nama sekolah',
+        'teacherPhone' => 'nomor HP',
+        'schoolLogoFile' => 'logo',
+        'teacherAvatarFile' => 'foto profil',
+    ],
+
+];

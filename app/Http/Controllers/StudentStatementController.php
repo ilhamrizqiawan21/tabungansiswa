@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use App\Models\Siswa;
+use App\Models\Transaksi;
 use App\Models\TransaksiApproval;
 use Illuminate\Contracts\View\View;
 use Inertia\Inertia;
@@ -14,13 +15,19 @@ class StudentStatementController extends Controller
     public function show(Siswa $siswa): Response
     {
         $siswa->load('kelas.tahunPelajaran');
-        $summary = $siswa->transaksi()->effective()->selectRaw("COALESCE(SUM(CASE WHEN jenis = 'masuk' THEN jumlah ELSE 0 END), 0) as masuk, COALESCE(SUM(CASE WHEN jenis = 'keluar' THEN jumlah ELSE 0 END), 0) as keluar")->first();
+        $summary = $siswa->transaksi()->effective()->selectRaw(Transaksi::RINGKASAN_EXPRESSION)->first();
 
         return Inertia::render('Master/Statement', [
             'student' => $siswa,
             'summary' => ['masuk' => (float) $summary->masuk, 'keluar' => (float) $summary->keluar, 'saldo' => (float) $summary->masuk - (float) $summary->keluar],
-            'items' => $siswa->transaksi()->effective()->latest('id')->paginate(20)->through(fn ($t) => [
-                'id' => $t->id, 'tanggal' => $t->tanggal->format('d M Y'), 'jenis' => $t->jenis, 'jumlah' => (float) $t->jumlah, 'keterangan' => $t->keterangan,
+            'items' => $siswa->transaksi()->effective()->with('reversal:id,reversal_of_id')->latest('id')->paginate(20)->through(fn (Transaksi $t) => [
+                'id' => $t->id,
+                'tanggal' => $t->tanggal->translatedFormat('d M Y'),
+                'jenis' => $t->jenis,
+                'jumlah' => (float) $t->jumlah,
+                'keterangan' => $t->keterangan,
+                'isReversal' => $t->isReversal(),
+                'isReversed' => $t->reversal !== null,
             ]),
             'pendingCount' => TransaksiApproval::where('siswa_id', $siswa->id)->whereHas('status', fn ($q) => $q->where('name', 'pending'))->count(),
         ]);

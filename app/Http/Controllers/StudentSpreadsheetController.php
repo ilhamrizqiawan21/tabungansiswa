@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ImportStudentsRequest;
 use App\Models\Kelas;
 use App\Models\Setting;
 use App\Models\Siswa;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -16,9 +16,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class StudentSpreadsheetController extends Controller
 {
-    public function import(Request $request)
+    public function import(ImportStudentsRequest $request)
     {
-        $request->validate(['file' => ['required', 'file', 'mimes:xlsx', 'max:2048']]);
         $class = Kelas::find(Setting::get('active_class_id'));
         if (! $class) {
             throw ValidationException::withMessages(['file' => 'Atur kelas aktif terlebih dahulu.']);

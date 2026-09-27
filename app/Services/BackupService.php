@@ -95,6 +95,26 @@ class BackupService
         }
     }
 
+    /**
+     * Keep only the newest `$keep` archives. Returns how many were deleted.
+     */
+    public function prune(int $keep): int
+    {
+        if ($keep <= 0) {
+            return 0;
+        }
+
+        $old = array_slice($this->listing(), $keep);
+        foreach ($old as $item) {
+            Storage::disk('backups')->delete($item['name']);
+        }
+
+        return count($old);
+    }
+
+    /**
+     * @return array<int, array{name: string, size: int, created_at: string}>
+     */
     public function listing(): array
     {
         $disk = Storage::disk('backups');

@@ -157,6 +157,43 @@ class TransactionTest extends TestCase
         $this->assertDatabaseCount('transaksi', 1);
     }
 
+    public function test_save_and_continue_returns_to_form_keeping_date_and_type(): void
+    {
+        $this->post('/transaksi', [
+            'siswa_id' => $this->siswa->id,
+            'tanggal' => '2026-09-11',
+            'jenis' => 'masuk',
+            'jumlah' => 10000,
+            'lanjut' => true,
+        ])->assertRedirect('/transaksi/create?tanggal=2026-09-11&jenis=masuk');
+    }
+
+    public function test_amount_above_maximum_is_rejected(): void
+    {
+        $this->post('/transaksi', [
+            'siswa_id' => $this->siswa->id,
+            'tanggal' => '2026-09-11',
+            'jenis' => 'masuk',
+            'jumlah' => 100_000_001,
+        ])->assertSessionHasErrors(['jumlah' => 'Jumlah tidak boleh lebih dari 100000000.']);
+
+        $this->assertDatabaseCount('transaksi', 0);
+    }
+
+    public function test_reversal_requires_reason_and_books_correction(): void
+    {
+        $deposit = Transaksi::create(['siswa_id' => $this->siswa->id, 'tanggal' => '2026-09-10', 'jenis' => 'masuk', 'jumlah' => 50000, 'saldo' => 50000]);
+
+        $this->post("/transaksi/{$deposit->id}/koreksi", [])->assertSessionHasErrors('alasan');
+        $this->post("/transaksi/{$deposit->id}/koreksi", ['alasan' => 'Salah ketik nominal'])
+            ->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('transaksi', ['reversal_of_id' => $deposit->id, 'jenis' => 'keluar', 'jumlah' => 50000]);
+        $this->get('/transaksi')->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('items.data.1.isReversed', true)
+            ->where('items.data.0.isReversal', true));
+    }
+
     public function test_approval_uses_personal_admin_even_with_an_old_operator_session(): void
     {
         $operator = Admin::create([

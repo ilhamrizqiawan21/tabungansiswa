@@ -75,6 +75,21 @@ class BackupTest extends TestCase
         $this->assertSame([], app(BackupService::class)->listing());
     }
 
+    public function test_prune_keeps_only_newest_archives(): void
+    {
+        Storage::fake('backups');
+        foreach (['tabungan-20260901-000000-aaaa.zip', 'tabungan-20260902-000000-bbbb.zip', 'tabungan-20260903-000000-cccc.zip'] as $offset => $name) {
+            Storage::disk('backups')->put($name, 'zip');
+            touch(Storage::disk('backups')->path($name), now()->subDays(3 - $offset)->getTimestamp());
+        }
+
+        $removed = app(BackupService::class)->prune(2);
+
+        $this->assertSame(1, $removed);
+        Storage::disk('backups')->assertMissing('tabungan-20260901-000000-aaaa.zip');
+        Storage::disk('backups')->assertExists('tabungan-20260903-000000-cccc.zip');
+    }
+
     public function test_backup_download_rejects_unknown_and_non_archive_files(): void
     {
         Storage::fake('backups');
